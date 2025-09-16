@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحميل فيديو يوتيوب</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      width: 420px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+    button {
+      background: #ff512f;
+      background: linear-gradient(to right, #ff512f, #dd2476);
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .msg {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ffd700;
+    }
+    .preview {
+      margin-top: 15px;
+    }
+    .preview img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .preview h3 {
+      font-size: 18px;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 تحميل فيديو يوتيوب</h1>
+    
+    <!-- 📌 خانة إدخال رابط الفيديو -->
+    <input type="text" id="videoUrl" placeholder="أدخل رابط الفيديو" required />
+    <button onclick="showPreview()">عرض المعاينة</button>
+
+    <!-- 📌 مكان المعاينة -->
+    <div class="preview" id="preview" style="display:none;">
+      <img id="thumbnail" src="" alt="صورة الفيديو" />
+      <h3 id="videoTitle"></h3>
+
+      <form id="downloadForm">
+        <select id="quality">
+          <option value="highest">📺 أعلى جودة (720p/1080p)</option>
+          <option value="480p">📺 جودة متوسطة (480p)</option>
+          <option value="audioonly">🎵 صوت فقط (MP3)</option>
+        </select>
+        <button type="submit">تحميل</button>
+      </form>
+    </div>
+
+    <p class="msg" id="msg"></p>
+  </div>
+
+  <script>
+    // 📌 دالة المعاينة
+    async function showPreview() {
+      const url = document.getElementById("videoUrl").value;
+      const msg = document.getElementById("msg");
+      const preview = document.getElementById("preview");
+
+      try {
+        const res = await fetch(`/info?url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+
+        if (data.error) {
+          msg.textContent = data.error;
+          return;
+        }
+
+        document.getElementById("thumbnail").src = data.thumbnail;
+        document.getElementById("videoTitle").textContent = data.title;
+
+        preview.style.display = "block";
+        msg.textContent = "";
+      } catch (error) {
+        msg.textContent = "⚠️ لم نستطع جلب بيانات الفيديو.";
+      }
+    }
+
+    // 📌 دالة التحميل
+    document.getElementById("downloadForm")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const url = document.getElementById("videoUrl").value;
+      const quality = document.getElementById("quality").value;
+      const msg = document.getElementById("msg");
+      msg.textContent = "⏳ جاري تجهيز الرابط...";
+      try {
+        window.location.href = `/download?url=${encodeURIComponent(url)}&quality=${quality}`;
+        msg.textContent = "✅ جاري التحميل...";
+      } catch (error) {
+        msg.textContent = "⚠️ في مشكلة بالاتصال بالسيرفر.";
+      }
+    });
+  </script>
+</body>
+</html>
